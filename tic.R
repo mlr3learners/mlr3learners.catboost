@@ -14,7 +14,7 @@ if (!ci_has_env("PARAMTEST") && !ci_has_env("DRAT")) {
   get_stage("script") %>%
     add_code_step(remotes::install_dev("mlr3")) %>%
     add_code_step(testthat::test_dir(system.file("paramtest",
-      package = "<package>"),
+      package = "mlr3learners.catboost"),
     stop_on_failure = TRUE))
 } else if (ci_has_env("DRAT")) {
 

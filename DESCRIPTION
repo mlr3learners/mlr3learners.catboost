@@ -1,12 +1,14 @@
-Package: mlr3learnerstemplate
-Title: Template for Adding New Learners to 'mlr3'
+Package: mlr3learners.catboost
+Title: Learners from catboost package for mlr3
 Version: 0.1.0.9000
 Authors@R:
-    person(given = "given.name",
-           family = "family.name",
-           role = "cre",
-           email = "email@email.com")
-Description: Template for adding new learners to 'mlr3'.
+    person(given = "Lennart",
+           family = "Schneider",
+           role = c("aut", "cre"),
+           email = "lennart.sch@web.de",
+           comment = c(ORCID = "0000-0003-4152-5308"))
+Description: Adds Learner functionality from the catboost
+    package to mlr3.
 License: LGPL-3
 Depends:
     R (>= 3.1.0)
@@ -17,10 +19,11 @@ Imports:
     paradox,
     R6
 Suggests:
+    catboost,
     checkmate,
     rmarkdown,
     testthat
 Encoding: UTF-8
 NeedsCompilation: no
 Roxygen: list(markdown = TRUE)
-RoxygenNote: 7.1.0
+RoxygenNote: 7.1.0.9000
