@@ -28,4 +28,4 @@ Encoding: UTF-8
 NeedsCompilation: no
 Roxygen: list(markdown = TRUE)
 RoxygenNote: 7.1.0.9000
-Remotes: catboost/catboost/R-package
+Remotes: catboost/catboost/catboost/R-package
