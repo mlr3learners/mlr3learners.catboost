@@ -19,6 +19,7 @@ Imports:
     paradox,
     R6
 Suggests:
+    bibtex,
     catboost,
     checkmate,
     rmarkdown,
