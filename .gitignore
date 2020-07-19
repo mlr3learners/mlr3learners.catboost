@@ -102,3 +102,6 @@ $RECYCLE.BIN/
 !.vscode/extensions.json
 *.code-workspace
 .vscode
+
+# catboost tmp directory
+catboost_info/
