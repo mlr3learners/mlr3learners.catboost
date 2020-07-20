@@ -5,11 +5,40 @@
 \alias{LearnerClassifCatboost}
 \title{Gradient Boosted Decision Trees Classification Learner}
 \description{
-FIXME: Link
 Gradient boosted decision trees classification learner.
-Calls \code{\link[catboost:catboost.train]{catboost::catboost.train()}} and \code{\link[catboost:catboost.predict]{catboost::catboost.predict()}} from
+Uses \code{\link[catboost:catboost.train]{catboost::catboost.train()}} and \code{\link[catboost:catboost.predict]{catboost::catboost.predict()}} from
 package catboost.
 }
+\section{Custom mlr3 defaults}{
+
+\itemize{
+\item \code{logging_level}:
+\itemize{
+\item Actual default: "Verbose"
+\item Adjusted default: "Silent"
+\item Reason for change: consistent with mlr3
+}
+\item \code{thread_count}:
+\itemize{
+\item Actual default: -1
+\item Adjusted default: 1
+\item Reason for change: consistent with mlr3
+}
+\item \code{allow_writing_files}:
+\itemize{
+\item Actual default: TRUE
+\item Adjusted default: FALSE
+\item Reason for change: consistent with mlr3
+}
+\item \code{save_snapshot}:
+\itemize{
+\item Actual default: TRUE
+\item Adjusted default: FALSE
+\item Reason for change: consistent with mlr3
+}
+}
+}
+
 \section{Dictionary}{
 
 This \link{Learner} can be instantiated via the \link[mlr3misc:Dictionary]{dictionary}
@@ -28,9 +57,8 @@ if (requireNamespace("catboost")) {
 }
 }
 \references{
-FIXME:
-\cite{mlr3learners.mboost}{dorogush2017a}
-\cite{mlr3learners.mboost}{dorogush2017b}
+\cite{mlr3learners.catboost}{dorogush2019}
+\cite{mlr3learners.catboost}{prokhorenkova2017}
 }
 \seealso{
 \link[mlr3misc:Dictionary]{Dictionary} of \link[mlr3:Learner]{Learners}:
@@ -43,6 +71,7 @@ FIXME:
 \subsection{Public methods}{
 \itemize{
 \item \href{#method-new}{\code{LearnerClassifCatboost$new()}}
+\item \href{#method-importance}{\code{LearnerClassifCatboost$importance()}}
 \item \href{#method-clone}{\code{LearnerClassifCatboost$clone()}}
 }
 }
@@ -68,6 +97,19 @@ Create a \code{LearnerClassifCatboost} object.
 \if{html}{\out{<div class="r">}}\preformatted{LearnerClassifCatboost$new()}\if{html}{\out{</div>}}
 }
 
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-importance"></a>}}
+\if{latex}{\out{\hypertarget{method-importance}{}}}
+\subsection{Method \code{importance()}}{
+The importance scores are calculated using \code{\link[catboost:catboost.get_feature_importance]{catboost.get_feature_importance}}, returned for 'all'.
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{LearnerClassifCatboost$importance()}\if{html}{\out{</div>}}
+}
+
+\subsection{Returns}{
+Named \code{numeric()}.
+}
 }
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-clone"></a>}}
