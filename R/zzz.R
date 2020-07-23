@@ -1,6 +1,7 @@
 #' @import data.table
 #' @import paradox
 #' @import mlr3misc
+#' @import checkmate
 #' @importFrom R6 R6Class
 #' @importFrom mlr3 mlr_learners LearnerClassif LearnerRegr
 "_PACKAGE"
@@ -10,8 +11,9 @@ register_mlr3 = function(libname, pkgname) {
   # get mlr_learners dictionary from the mlr3 namespace
   x = utils::getFromNamespace("mlr_learners", ns = "mlr3")
 
-  # add the learner to the dictionary
+  # add the learners to the dictionary
   x$add("classif.catboost", LearnerClassifCatboost)
+  x$add("regr.catboost", LearnerRegrCatboost)
 }
 
 .onLoad = function(libname, pkgname) { # nolint

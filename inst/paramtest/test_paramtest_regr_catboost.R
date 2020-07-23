@@ -1,7 +1,7 @@
 library(mlr3learners.catboost)
 
-test_that("classif.catboost_catboost.train", {
-  learner = lrn("classif.catboost")
+test_that("regr.catboost_catboost.train", {
+  learner = lrn("regr.catboost")
   fun = catboost::catboost.train
   exclude = c(
     "learn_pool", # handled via mlr3
@@ -15,8 +15,8 @@ test_that("classif.catboost_catboost.train", {
     paste0("- '", ParamTest$missing, "'", collapse = "\n")))
 })
 
-test_that("classif.catboost_catboost.predict", {
-  learner = lrn("classif.catboost")
+test_that("regr.catboost_catboost.predict", {
+  learner = lrn("regr.catboost")
   fun = catboost::catboost.predict
   exclude = c(
     "model", # handled via mlr3

@@ -1,15 +1,13 @@
-#' @title Gradient Boosted Decision Trees Classification Learner
+#' @title Gradient Boosted Decision Trees Regression Learner
 #'
-#' @name mlr_learners_classif.catboost
+#' @name mlr_learners_regr.catboost
 #'
 #' @description
-#' Gradient boosted decision trees classification learner.
+#' Gradient boosted decision trees regressionlearner.
 #' Uses [catboost::catboost.train()] and [catboost::catboost.predict()] from
 #' package catboost.
 #'
-#' By default, the log loss is optimized as the loss function for binary
-#' classification, and the multi-class loss is optimized as the loss function
-#' for multiclass classification.
+#' By default, the RMSE is optimized as the loss function.
 #'
 #' @section Custom mlr3 defaults:
 #' - `logging_level`:
@@ -29,7 +27,7 @@
 #'   - Adjusted default: FALSE
 #'   - Reason for change: consistent with other mlr3 learners
 #'
-#' @templateVar id classif.catboost
+#' @templateVar id regr.catboost
 #' @template section_dictionary_learner
 #'
 #' @references
@@ -39,12 +37,12 @@
 #' @export
 #' @template seealso_learner
 #' @template example
-LearnerClassifCatboost = R6Class("LearnerClassifCatboost",
-  inherit = LearnerClassif,
+LearnerRegrCatboost = R6Class("LearnerRegrCatboost",
+  inherit = LearnerRegr,
   public = list(
 
     #' @description
-    #' Create a `LearnerClassifCatboost` object.
+    #' Create a `LearnerRegrCatboost` object.
     initialize = function() {
 
       ps = ParamSet$new(
@@ -53,13 +51,10 @@ LearnerClassifCatboost = R6Class("LearnerClassifCatboost",
           # https://catboost.ai/docs/concepts/r-reference_catboost-train.html
           # Common parameters
           ParamFct$new(
-            id = "loss_function_twoclass",
-            levels = c("Logloss", "CrossEntropy"),
-            default = "Logloss", tags = "train"),
-          ParamFct$new(
-            id = "loss_function_multiclass",
-            levels = c("MultiClass", "MultiClassOneVsAll"),
-            default = "MultiClass", tags = "train"),
+            id = "loss_function",
+            levels = c("MAE", "MAPE", "Poisson", "Quantile", "RMSE",
+              "LogLinQuantile", "Lq", "Huber", "Expectile", "Tweedie"),
+            default = "RMSE", tags = "train"),
           # custom_loss missing
           # eval_metric missing
           ParamInt$new(
@@ -137,11 +132,6 @@ LearnerClassifCatboost = R6Class("LearnerClassifCatboost",
           ParamLgl$new(
             id = "approx_on_full_history",
             default = TRUE, tags = "train"),
-          ParamUty$new(id = "class_weights", tags = "train"),
-          ParamFct$new(
-            id = "auto_class_weights",
-            levels = c("None", "Balanced", "SqrtBalanced"),
-            default = "None", tags = "train"),
           ParamFct$new(
             id = "boosting_type",
             levels = c("Ordered", "Plain"), tags = "train"),
@@ -190,10 +180,6 @@ LearnerClassifCatboost = R6Class("LearnerClassifCatboost",
           ParamUty$new(
             id = "per_float_feature_quantization", tags = "train",
             custom_check = checkmate::check_string),
-          # Multiclassification settings
-          ParamInt$new(
-            id = "classes_count",
-            lower = 1L, upper = Inf, tags = "train"),
           # Performance Settings
           ParamInt$new(
             id = "thread_count",
@@ -275,22 +261,21 @@ LearnerClassifCatboost = R6Class("LearnerClassifCatboost",
         id = "diffusion_temperature", on = "langevin",
         cond = CondEqual$new(TRUE))
 
-      ps$values$loss_function_twoclass = "Logloss"
-      ps$values$loss_function_multiclass = "MultiClass"
+      ps$values$loss_function = "RMSE"
       ps$values$logging_level = "Silent"
       ps$values$thread_count = 1L
       ps$values$allow_writing_files = FALSE
       ps$values$save_snapshot = FALSE
 
       super$initialize(
-        id = "classif.catboost",
+        id = "regr.catboost",
         packages = "catboost",
         feature_types = c("logical", "integer", "numeric", "factor", "ordered"),
-        predict_types = c("response", "prob"),
+        predict_types = "response",
         param_set = ps,
         properties = c(
-          "missings", "weights", "importance", "twoclass", "multiclass"), # FIXME: parallel
-        man = "mlr3learners.catboost::mlr_learners_classif.catboost"
+          "missings", "weights", "importance"), # FIXME: parallel
+        man = "mlr3learners.catboost::mlr_learners_regr.catboost"
       )
     },
 
@@ -320,38 +305,17 @@ LearnerClassifCatboost = R6Class("LearnerClassifCatboost",
         data[, (to_numerics) := lapply(.SD, as.numeric), .SDcols = to_numerics]
       }
 
-      # target is encoded as integer values from 0
-      # if binary, the positive class is 1
-      is_binary = (length(task$class_names) == 2L)
-      label = if (is_binary) {
-        ifelse(task$data(cols = task$target_names)[[1L]] == task$positive,
-          yes = 1L,
-          no = 0L)
-      } else {
-        as.integer(task$data(cols = task$target_names)[[1L]]) - 1L
-      }
-
       # data must be a dataframe
       learn_pool = mlr3misc::invoke(catboost::catboost.load_pool,
         data = setDF(data),
-        label = label,
+        label = task$data(cols = task$target_names)[[1L]],
         weight = task$weights$weight,
         thread_count = self$param_set$values$thread_count)
-
-      # set loss_function correctly
-      pars = self$param_set$get_values(tags = "train")
-      pars$loss_function = if (is_binary) {
-        pars$loss_function_twoclass
-      } else {
-        pars$loss_function_multiclass
-      }
-      pars$loss_function_twoclass = NULL
-      pars$loss_function_multiclass = NULL
 
       mlr3misc::invoke(catboost::catboost.train,
         learn_pool = learn_pool,
         test_pool = NULL,
-        params = pars)
+        params = self$param_set$get_values(tags = "train"))
     },
 
     .predict = function(task) {
@@ -363,44 +327,18 @@ LearnerClassifCatboost = R6Class("LearnerClassifCatboost",
         data[, (to_numerics) := lapply(.SD, as.numeric), .SDcols = to_numerics]
       }
 
-      # target was encoded as integer values based on the train_task
-      # to later revert this, again use the train_task
-      is_binary = (length(self$state$train_task$class_names) == 2L)
-
       # data must be a dataframe
       pool = mlr3misc::invoke(catboost::catboost.load_pool,
         data = setDF(data),
         thread_count = self$param_set$values$thread_count)
 
-      prediction_type = if (self$predict_type == "response") {
-        "Class"
-      } else {
-        "Probability"
-      }
       preds = mlr3misc::invoke(catboost::catboost.predict,
         model = self$model,
         pool = pool,
-        prediction_type = prediction_type,
+        prediction_type = "RawFormulaVal",
         .args = self$param_set$get_values(tags = "predict"))
 
-      if (self$predict_type == "response") {
-        response = if (is_binary) {
-          ifelse(preds == 1L,
-            yes = self$state$train_task$positive,
-            no = setdiff(
-              self$state$train_task$class_names,
-              self$state$train_task$positive))
-        } else {
-          self$state$train_task$class_names[preds + 1L]
-        }
-        PredictionClassif$new(task = task, response = response)
-      } else {
-        if (is_binary && is.null(dim(preds))) {
-          preds = matrix(c(preds, 1 - preds), ncol = 2L, nrow = length(preds))
-        }
-        colnames(preds) = self$state$train_task$class_names
-        PredictionClassif$new(task = task, prob = preds)
-      }
+      PredictionRegr$new(task = task, response = preds)
     }
   )
 )
