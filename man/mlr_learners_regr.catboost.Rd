@@ -5,7 +5,7 @@
 \alias{LearnerRegrCatboost}
 \title{Gradient Boosted Decision Trees Regression Learner}
 \description{
-Gradient boosted decision trees regressionlearner.
+Gradient boosted decision trees regression learner.
 Uses \code{\link[catboost:catboost.train]{catboost::catboost.train()}} and \code{\link[catboost:catboost.predict]{catboost::catboost.predict()}} from
 package catboost.
 

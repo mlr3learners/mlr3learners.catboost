@@ -3,7 +3,7 @@
 #' @name mlr_learners_regr.catboost
 #'
 #' @description
-#' Gradient boosted decision trees regressionlearner.
+#' Gradient boosted decision trees regression learner.
 #' Uses [catboost::catboost.train()] and [catboost::catboost.predict()] from
 #' package catboost.
 #'
