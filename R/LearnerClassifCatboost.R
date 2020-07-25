@@ -313,6 +313,7 @@ LearnerClassifCatboost = R6Class("LearnerClassifCatboost",
   private = list(
     .train = function(task) {
       # integer/logical features must be converted to numerics explicitly
+
       data = task$data(cols = task$feature_names)
       to_numerics = task$feature_types$id[task$feature_types$type %in%
         c("integer", "logical")]
@@ -356,6 +357,7 @@ LearnerClassifCatboost = R6Class("LearnerClassifCatboost",
 
     .predict = function(task) {
       # integer/logical features must be converted to numerics explicitly
+
       data = task$data(cols = task$feature_names)
       to_numerics = task$feature_types$id[task$feature_types$type %in%
         c("integer", "logical")]

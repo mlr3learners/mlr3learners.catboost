@@ -52,7 +52,8 @@ LearnerRegrCatboost = R6Class("LearnerRegrCatboost",
           # Common parameters
           ParamFct$new(
             id = "loss_function",
-            levels = c("MAE", "MAPE", "Poisson", "Quantile", "RMSE",
+            levels = c(
+              "MAE", "MAPE", "Poisson", "Quantile", "RMSE",
               "LogLinQuantile", "Lq", "Huber", "Expectile", "Tweedie"),
             default = "RMSE", tags = "train"),
           # custom_loss missing
@@ -320,6 +321,7 @@ LearnerRegrCatboost = R6Class("LearnerRegrCatboost",
 
     .predict = function(task) {
       # integer/logical features must be converted to numerics explicitly
+
       data = task$data(cols = task$feature_names)
       to_numerics = task$feature_types$id[task$feature_types$type %in%
         c("integer", "logical")]
