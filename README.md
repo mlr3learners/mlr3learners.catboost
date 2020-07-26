@@ -1,4 +1,4 @@
-# mlr3learners.catboost>
+# mlr3learners.catboost
 
 <!-- badges: start -->
 
